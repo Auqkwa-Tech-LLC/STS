@@ -33,7 +33,7 @@ From this menu they may see the sell prices for all their party Pokemon and sell
 ```javascript
 general
 {
-	# The amount of money given to the player if the Pokemon has a custom texture.
+    # The amount of money given to the player if the Pokemon has a custom texture.
     customTextureBooster=1000
     # The amount of money given if the Pokemon has a Hidden Ability.
     hiddenAbilityBooster=1000

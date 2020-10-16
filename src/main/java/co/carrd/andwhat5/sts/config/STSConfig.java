@@ -10,6 +10,9 @@ public class STSConfig {
 
     @ConfigSerializable
     public static class General {
+        @Setting(comment = "The prefix to be used before each message.")
+        public static String prefix = "&6[&cSTS&6]";
+
         @Setting(comment = "The amount of money per level of the Pokemon.")
         public static int moneyPerLevel = 15;
 
@@ -30,8 +33,6 @@ public class STSConfig {
 
         @Setting(comment = "The amount of money given to the player if the Pokemon has a custom texture.")
         public static int customTextureBooster = 1000;
-
-
-
     }
+
 }

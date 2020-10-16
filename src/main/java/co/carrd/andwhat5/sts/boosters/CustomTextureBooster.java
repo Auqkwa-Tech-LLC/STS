@@ -1,19 +1,21 @@
 package co.carrd.andwhat5.sts.boosters;
 
+import co.carrd.andwhat5.sts.STS;
 import co.carrd.andwhat5.sts.config.STSConfig;
 import co.carrd.andwhat5.sts.interfaces.IBooster;
-import com.pixelmonmod.pixelmon.storage.NbtKeys;
-import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.text.Text;
+import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 
 public class CustomTextureBooster implements IBooster {
+
     @Override
-    public int getMoney(NBTTagCompound pokemon) {
-        return pokemon.hasKey(NbtKeys.CUSTOM_TEXTURE) ? STSConfig.General.customTextureBooster : 0;
+    public int getMoney(Pokemon pokemon) {
+        return pokemon.getCustomTexture() != null &&
+                !pokemon.getCustomTexture().equals("") ? STSConfig.General.customTextureBooster : 0;
     }
 
     @Override
     public String getItemLore() {
-        return "Custom Texture Booster: $";
+        return "Custom Texture Booster: " + STS.getCurrencySymbol();
     }
+
 }

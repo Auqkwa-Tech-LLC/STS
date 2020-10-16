@@ -1,22 +1,21 @@
 package co.carrd.andwhat5.sts.boosters;
 
+import co.carrd.andwhat5.sts.STS;
 import co.carrd.andwhat5.sts.config.STSConfig;
 import co.carrd.andwhat5.sts.interfaces.IBooster;
-import com.pixelmonmod.pixelmon.storage.NbtKeys;
-import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.text.Text;
-
+import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 
 public class BoosterMoneyPerLevel implements IBooster {
 
     @Override
-    public int getMoney(NBTTagCompound pokemon) {
-        int level = pokemon.getInteger(NbtKeys.LEVEL);
+    public int getMoney(Pokemon pokemon) {
+        int level = pokemon.getLevel();
         return level * STSConfig.General.moneyPerLevel;
     }
 
     @Override
     public String getItemLore() {
-        return "Money from Level : $";
+        return "Money from Level: " + STS.getCurrencySymbol();
     }
+
 }

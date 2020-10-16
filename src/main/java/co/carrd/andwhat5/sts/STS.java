@@ -1,7 +1,7 @@
 package co.carrd.andwhat5.sts;
 
 import co.carrd.andwhat5.sts.boosters.*;
-import co.carrd.andwhat5.sts.commands.CommandSTS;
+import co.carrd.andwhat5.sts.commands.STSCommand;
 import co.carrd.andwhat5.sts.config.STSConfig;
 import co.carrd.andwhat5.sts.interfaces.IBooster;
 import com.google.common.reflect.TypeToken;
@@ -11,24 +11,23 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.service.economy.EconomyService;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Plugin(
         id = "sts",
         name = "STS",
         authors = "AnDwHaT5",
-        version = "1.0.1"
+        version = "1.1.0"
 )
 public class STS {
 
@@ -43,19 +42,31 @@ public class STS {
     @Inject
     private Logger logger;
 
+    public static Logger getLogger() {
+        return instance.logger;
+    }
+
+    private EconomyService economyService;
+
+    public static EconomyService getEcoService() {
+        return instance.economyService;
+    }
+
+    public static String getCurrencySymbol() {
+        return getEcoService().getDefaultCurrency().getSymbol().toPlainSingle();
+    }
+
     @Inject
     @DefaultConfig(sharedRoot = false)
     private ConfigurationLoader<CommentedConfigurationNode> configLoader;
 
     public STSConfig config;
 
-    private CommentedConfigurationNode node;
-
     public static List<IBooster> boosters = new ArrayList<>();
 
     public void loadConfig() throws IOException, ObjectMappingException {
         //Config
-        this.node = this.configLoader.load();
+        CommentedConfigurationNode node = this.configLoader.load();
         TypeToken<STSConfig> type = TypeToken.of(STSConfig.class);
         this.config = node.getValue(type, new STSConfig());
         node.setValue(type, this.config);
@@ -65,13 +76,20 @@ public class STS {
 
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
-
         instance = this;
+
+        Optional<EconomyService> opEcoService = Sponge.getServiceManager().provide(EconomyService.class);
+        if (!opEcoService.isPresent()) {
+            logger.error("=== Failed to load economy service! STS will be disabled! ===");
+            return;
+        }
+
+        economyService = opEcoService.get();
+
         try {
             loadConfig();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectMappingException e) {
+        }
+        catch (IOException | ObjectMappingException e) {
             e.printStackTrace();
         }
 
@@ -84,13 +102,7 @@ public class STS {
         boosters.add(new LegendaryBooster());
         boosters.add(new PerfectIVBooster());
 
-        CommandSpec sts = CommandSpec.builder()
-                .description(Text.of("Opens the Sell to Server GUI."))
-                .permission("sts.sts.base")
-                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("reload"))))
-                .executor(new CommandSTS())
-                .build();
-        Sponge.getCommandManager().register(this, sts, "sts");
-
+        Sponge.getCommandManager().register(this, STSCommand.spec(), "sts");
     }
+
 }
